@@ -19,3 +19,6 @@ mlruns/
 .DS_Store
 .vscode/
 .idea/
+
+# Texto do Livro
+artigo.md
