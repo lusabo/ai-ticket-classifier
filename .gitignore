@@ -1,0 +1,21 @@
+# Segredos / env local
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+
+# Artefatos locais
+models/*.joblib
+models/*.parquet
+data/*.db
+
+# MLflow local
+mlruns/
+
+# OS/Editor
+.DS_Store
+.vscode/
+.idea/

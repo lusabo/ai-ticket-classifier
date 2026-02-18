@@ -1,0 +1,7 @@
+README.md
+pyproject.toml
+src/ai_ticket_classifier.egg-info/PKG-INFO
+src/ai_ticket_classifier.egg-info/SOURCES.txt
+src/ai_ticket_classifier.egg-info/dependency_links.txt
+src/ai_ticket_classifier.egg-info/requires.txt
+src/ai_ticket_classifier.egg-info/top_level.txt
