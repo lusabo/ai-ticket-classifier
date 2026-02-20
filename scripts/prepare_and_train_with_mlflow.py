@@ -41,12 +41,17 @@ def prepare_and_train_with_mlflow():
     if not results["is_valid"]:
         raise ValueError("Dataset inválido. Corrija antes de treinar.")
 
-    # 3) Preparar dataset (limpeza/filtros)
-    df = loader.prepare_training_data(df_raw, min_samples_per_category=10)
+    # 3) Preparar dataset limpo (FULL) e derivar dataset de treino
+    df_prepared_full = loader.prepare_training_data(
+        df_raw,
+        min_samples_per_category=10,
+        return_full=True,  # ✅ baseline operacional com metadados
+    )
+    df_train = df_prepared_full[["texto", "categoria"]]
 
     # 4) Treinar + tracking no MLflow
     model = train_with_tracking(
-        df,
+        df_train,
         experiment_name="ticket-classification",
         test_size=0.2,
         random_state=42,
@@ -62,13 +67,14 @@ def prepare_and_train_with_mlflow():
     print(f"\n💾 Modelo salvo em: {model_path}")
 
     reference_path = model_dir / "reference_data.parquet"
-    df.to_parquet(reference_path, index=False)
-    print(f"📋 Dados de referência salvos em: {reference_path}")
+    df_prepared_full.to_parquet(reference_path, index=False)
+    print(f"📋 Baseline operacional salvo em: {reference_path}")
 
     print("=" * 60)
     print("✅ Treinamento concluído com sucesso!")
     print("=" * 60)
     return model
+
 
 if __name__ == "__main__":
     prepare_and_train_with_mlflow()
