@@ -28,11 +28,16 @@ class TicketDataLoader:
         self,
         df_raw: pd.DataFrame,
         min_samples_per_category: int = 10,
+        return_full: bool = False,
     ) -> pd.DataFrame:
         """Aplica limpeza/normalização + filtros e retorna DF pronto para treino."""
         df = self._clean_data(df_raw)
         df = self._filter_by_category_count(df, min_samples_per_category)
         self._print_summary(df)
+
+        if return_full:
+            return df # baseline operacional (com metadados)
+
         return df[["texto", "categoria"]]
 
     def load_training_data(
