@@ -13,6 +13,7 @@ from sklearn.metrics import (
 
 from ticket_ai.pipelines.train import build_pipeline
 
+
 def train_with_tracking(
     df: pd.DataFrame,
     experiment_name: str = "ticket-classification",
@@ -29,8 +30,7 @@ def train_with_tracking(
 
     df = df.copy()
     df["texto"] = df["texto"].fillna("").astype(str)
-    df["categoria"] = df["categoria"].fillna(
-        "").astype(str).str.strip().str.lower()
+    df["categoria"] = df["categoria"].fillna("").astype(str).str.strip().str.lower()
 
     mlflow.set_experiment(experiment_name)
 
@@ -72,12 +72,10 @@ def train_with_tracking(
                 return_train_score=True,
                 n_jobs=-1,
             )
-            mlflow.log_metric("cv_val_f1_weighted_mean", float(
-                cv_results["test_f1_weighted"].mean()))
+            mlflow.log_metric("cv_val_f1_weighted_mean", float(cv_results["test_f1_weighted"].mean()))
             mlflow.log_metric(
                 "cv_f1_weighted_gap",
-                float(cv_results["train_f1_weighted"].mean() -
-                      cv_results["test_f1_weighted"].mean()),
+                float(cv_results["train_f1_weighted"].mean() - cv_results["test_f1_weighted"].mean()),
             )
 
         # --
@@ -104,40 +102,28 @@ def train_with_tracking(
         mlflow.log_metric("val_f1_macro", float(f1_m))
 
         # --
-        # Métricas por classe (como métricas no MLflow)
+        # Métricas por classe
         # --
-        report_dict = classification_report(
-            y_val, y_pred, output_dict=True, zero_division=0
-        )
+        report_dict = classification_report(y_val, y_pred, output_dict=True, zero_division=0)
         for label, metrics in report_dict.items():
             if label in ("accuracy", "macro avg", "weighted avg"):
                 continue
             safe_label = str(label).strip().lower().replace(" ", "_")
             if isinstance(metrics, dict):
                 if "precision" in metrics:
-                    mlflow.log_metric(
-                        f"val_precision_{safe_label}", float(metrics["precision"]))
+                    mlflow.log_metric(f"val_precision_{safe_label}", float(metrics["precision"]))
                 if "recall" in metrics:
-                    mlflow.log_metric(
-                        f"val_recall_{safe_label}", float(metrics["recall"]))
+                    mlflow.log_metric(f"val_recall_{safe_label}", float(metrics["recall"]))
                 if "f1-score" in metrics:
-                    mlflow.log_metric(
-                        f"val_f1_{safe_label}", float(metrics["f1-score"]))
+                    mlflow.log_metric(f"val_f1_{safe_label}", float(metrics["f1-score"]))
                 if "support" in metrics:
-                    mlflow.log_metric(
-                        f"val_support_{safe_label}", float(metrics["support"]))
+                    mlflow.log_metric(f"val_support_{safe_label}", float(metrics["support"]))
 
         # --
         # Artefatos de diagnóstico
         # --
-        mlflow.log_text(
-            classification_report(y_val, y_pred, zero_division=0),
-            "classification_report.txt",
-        )
-        mlflow.log_text(
-            str(confusion_matrix(y_val, y_pred)),
-            "confusion_matrix.txt",
-        )
+        mlflow.log_text(classification_report(y_val, y_pred, zero_division=0), "classification_report.txt")
+        mlflow.log_text(str(confusion_matrix(y_val, y_pred)), "confusion_matrix.txt")
 
         # --
         # Signature / contrato do modelo
@@ -145,7 +131,6 @@ def train_with_tracking(
         signature = infer_signature(X_train, model.predict(X_train))
 
         # Log do modelo como artefato MLflow
-        mlflow.sklearn.log_model(
-            model, artifact_path="model", signature=signature)
+        mlflow.sklearn.log_model(model, artifact_path="model", signature=signature)
 
     return model
